@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif Sejarah: Metode Penelitian</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Libraries for Exporting Data -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #f0f9ff;
+            background-image: radial-gradient(#bae6fd 2px, transparent 2px);
+            background-size: 30px 30px;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 4px solid #fff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .btn-game {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            top: 0;
+        }
+        
+        .btn-game:active {
+            top: 4px;
+            box-shadow: 0 0px 0px 0 rgba(0,0,0,0.2) !important;
+        }
+
+        .btn-option {
+            transition: all 0.2s ease;
+        }
+        
+        .btn-option:hover {
+            transform: translateX(5px);
+        }
+
+        .animate-bounce-in {
+            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Modal Overlay */
+        #modal-overlay {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Custom Scrollbar for Dashboard */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col items-center p-4 md:p-8">
+
+    <!-- Header / Global Audio Toggle -->
+    <div class="w-full max-w-4xl flex justify-between items-center mb-6 z-10">
+        <h1 class="text-2xl md:text-3xl font-bold text-sky-600 drop-shadow-md flex items-center gap-2">
+            <span class="text-3xl">🏛️</span> HistoriQu
+        </h1>
+        <button id="audioToggleBtn" class="btn-game bg-white text-slate-700 px-4 py-2 rounded-xl font-bold shadow-[0_4px_0_0_#cbd5e1] border-2 border-slate-200 flex items-center gap-2">
+            <span id="audioIcon">🔊</span> <span id="audioText">Audio ON</span>
+        </button>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <main class="w-full max-w-4xl glass-panel rounded-3xl p-6 md:p-10 relative overflow-hidden flex-grow flex flex-col">
+        
+        <!-- SCREEN 1: ROLE SELECTION -->
+        <div id="screen-role" class="flex flex-col items-center justify-center flex-grow animate-bounce-in">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-2 text-indigo-800">Selamat Datang di HistoriQu!</h2>
+            <p class="text-center text-slate-500 mb-10 text-lg">Petualangan seru belajar Metode Penelitian Sejarah</p>
+            
+            <div class="flex flex-col sm:flex-row gap-6 w-full max-w-sm justify-center">
+                <button onclick="app.showScreen('screen-student-login')" class="btn-game flex-1 bg-gradient-to-b from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-600 text-white text-xl font-bold py-6 px-4 rounded-2xl shadow-[0_6px_0_0_#0284c7] border-2 border-sky-300 flex flex-col items-center">
+                    <span class="text-4xl mb-2">🎓</span>
+                    Mulai Belajar
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: STUDENT LOGIN -->
+        <div id="screen-student-login" class="hidden flex-col items-center justify-center flex-grow animate-bounce-in">
+            <button onclick="app.showScreen('screen-role')" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600 font-bold flex items-center gap-1">
+                <span>←</span> Kembali
+            </button>
+            <h2 class="text-3xl font-bold text-indigo-800 mb-8">Isi Identitasmu! 🚀</h2>
+            
+            <div class="w-full max-w-sm space-y-5">
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-2 ml-1">Nama Lengkap</label>
+                    <input type="text" id="studentName" placeholder="Ketik namamu di sini..." class="w-full p-4 rounded-xl border-2 border-sky-200 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 outline-none transition-all font-medium text-lg">
+                </div>
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-2 ml-1">Kelas</label>
+                    <select id="studentClass" class="w-full p-4 rounded-xl border-2 border-sky-200 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 outline-none transition-all font-medium text-lg bg-white cursor-pointer">
+                        <option value="" disabled selected>Pilih Kelasmu...</option>
+                        <option value="XI A">Kelas XI A</option>
+                        <option value="XI B">Kelas XI B</option>
+                    </select>
+                </div>
+                <button onclick="app.startQuiz()" class="btn-game w-full mt-4 bg-gradient-to-b from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white text-xl font-bold py-4 rounded-xl shadow-[0_6px_0_0_#b45309] border-2 border-amber-300">
+                    Mulai Kuis! 🎮
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: QUIZ AREA -->
+        <div id="screen-quiz" class="hidden flex-col flex-grow">
+            <!-- Progress & Level -->
+            <div class="flex justify-between items-center mb-6 bg-slate-100 p-3 rounded-2xl border-2 border-slate-200">
+                <div class="font-bold text-sky-700 flex items-center gap-2">
+                    <span class="bg-sky-200 px-3 py-1 rounded-lg text-sm">Soal <span id="qNumber">1</span>/5</span>
+                </div>
+                <div class="font-bold text-indigo-700 flex items-center gap-2">
+                    <span class="text-sm">Level Kesulitan:</span>
+                    <span id="qLevelBadge" class="px-3 py-1 rounded-lg text-sm bg-indigo-200">LOTS</span>
+                </div>
+                <div class="font-bold text-emerald-700">
+                    Skor: <span id="qScore" class="bg-emerald-200 px-3 py-1 rounded-lg text-sm">0</span>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-white p-6 rounded-2xl border-2 border-sky-100 shadow-sm mb-6 relative">
+                <button onclick="app.readQuestionAndOptions()" class="absolute top-4 right-4 bg-sky-100 text-sky-600 p-2 rounded-lg hover:bg-sky-200 transition-colors" title="Bacakan Soal">
+                    🗣️
+                </button>
+                <h3 id="questionText" class="text-xl md:text-2xl font-semibold text-slate-800 pr-12 leading-relaxed">
+                    Pertanyaan akan muncul di sini...
+                </h3>
+            </div>
+
+            <!-- Options -->
+            <div id="optionsContainer" class="flex flex-col gap-3">
+                <!-- Options injected via JS -->
+            </div>
+        </div>
+
+        <!-- SCREEN 4: FEEDBACK MODAL -->
+        <div id="modal-feedback" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px);">
+            <div class="bg-white rounded-3xl p-8 max-w-lg w-full text-center animate-bounce-in border-4 border-white shadow-2xl relative overflow-hidden">
+                <div id="feedbackIcon" class="text-6xl mb-4">✨</div>
+                <h3 id="feedbackTitle" class="text-3xl font-bold mb-2">Luar Biasa!</h3>
+                <p id="feedbackText" class="text-slate-600 mb-6 text-lg">Kamu menjawab dengan benar.</p>
+                
+                <div class="bg-slate-50 p-4 rounded-xl text-left border-l-4 border-indigo-400 mb-8">
+                    <h4 class="font-bold text-indigo-800 mb-1 text-sm uppercase">Penjelasan:</h4>
+                    <p id="feedbackExplanation" class="text-slate-700">Penjelasan detail akan muncul di sini untuk memberikan konteks pembelajaran.</p>
+                </div>
+
+                <button onclick="app.nextQuestion()" class="btn-game w-full bg-gradient-to-b from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-600 text-white text-xl font-bold py-4 rounded-xl shadow-[0_6px_0_0_#0284c7] border-2 border-sky-300">
+                    Lanjut Soal Berikutnya ➡️
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 5: FINAL RESULT -->
+        <div id="screen-result" class="hidden flex-col items-center justify-center flex-grow animate-bounce-in text-center">
+            <h2 class="text-4xl font-bold text-indigo-800 mb-2">Kuis Selesai! 🎉</h2>
+            <p class="text-xl text-slate-600 mb-8">Kerja bagus, <span id="finalName" class="font-bold">Murid</span> dari kelas <span id="finalClass" class="font-bold">XI</span>.</p>
+            
+            <div class="bg-gradient-to-br from-amber-300 to-orange-400 p-1 rounded-3xl shadow-xl mb-8">
+                <div class="bg-white/90 backdrop-blur rounded-[22px] p-8 px-12">
+                    <p class="text-slate-500 font-bold uppercase tracking-wider mb-2">Total Skor Kamu</p>
+                    <div class="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500">
+                        <span id="finalScoreDisplay">100</span>
+                    </div>
+                    <p class="text-slate-600 font-medium mt-4 text-lg bg-slate-100 py-2 px-4 rounded-xl border border-slate-200">
+                        Jawaban Benar: <span id="finalCorrectDisplay" class="font-bold text-emerald-600">0</span> / 20 Soal
+                    </p>
+                </div>
+            </div>
+
+            <p id="finalMessage" class="text-lg font-medium text-slate-700 mb-8 max-w-md">
+                Kamu memiliki potensi besar menjadi sejarawan muda yang kritis!
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="app.downloadMyResultPDF()" class="btn-game bg-gradient-to-b from-rose-400 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white text-lg font-bold py-3 px-6 rounded-xl shadow-[0_4px_0_0_#e11d48] border-2 border-rose-300 flex items-center justify-center gap-2">
+                    <span class="text-2xl">📄</span> Unduh Hasil (PDF)
+                </button>
+                <button onclick="app.showScreen('screen-role')" class="btn-game bg-slate-200 hover:bg-slate-300 text-slate-700 text-lg font-bold py-3 px-8 rounded-xl shadow-[0_4px_0_0_#94a3b8]">
+                    Kembali ke Beranda
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Custom Alert/Message Box -->
+    <div id="customAlert" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4" style="background: rgba(0,0,0,0.4);">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl animate-bounce-in border-2 border-slate-100">
+            <div id="alertIcon" class="text-4xl mb-2">⚠️</div>
+            <h3 id="alertTitle" class="text-xl font-bold mb-2 text-slate-800">Peringatan</h3>
+            <p id="alertMessage" class="text-slate-600 mb-6">Pesan peringatan di sini.</p>
+            <button onclick="document.getElementById('customAlert').classList.add('hidden')" class="btn-game bg-sky-500 text-white font-bold py-2 px-6 rounded-lg shadow-[0_4px_0_0_#0284c7]">Mengerti</button>
+        </div>
+    </div>
+
+<!-- FIREBASE & APP LOGIC -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Data Soal (Tanam Paksa, Pintu Terbuka, Politik Etis) - 20 Soal Total
+    const questionBank = {
+        1: [ // Level 1: LOTS (Pengetahuan Dasar) - 7 Soal
+            {
+                text: "Tokoh penjajah yang mencetuskan gagasan Sistem Tanam Paksa (Cultuurstelsel) di Hindia Belanda pada tahun 1830 adalah...",
+                options: [
+                    "A. Gubernur Jenderal Johannes van den Bosch", 
+                    "B. Gubernur Jenderal Herman W. Daendels", 
+                    "C. Letnan Gubernur Thomas Stamford Raffles", 
+                    "D. Gubernur Jenderal Jan Pieterszoon Coen", 
+                    "E. Asisten Residen Eduard Douwes Dekker"
+                ],
+                answer: 0,
+                explanation: "Gubernur Jenderal Johannes van den Bosch adalah pencetus Sistem Tanam Paksa (Cultuurstelsel) pada 1830 untuk menyelamatkan Belanda dari kebangkrutan."
+            },
+            {
+                text: "Menurut aturan tertulis Sistem Tanam Paksa, petani pribumi diwajibkan untuk menyisihkan lahan pertaniannya sebesar...",
+                options: [
+                    "A. Seperlima dari luas total lahan pertaniannya", 
+                    "B. Seperempat dari luas total lahan pertaniannya", 
+                    "C. Sepertiga dari luas total lahan pertaniannya", 
+                    "D. Setengah dari luas total lahan pertaniannya", 
+                    "E. Seluruh dari luas total lahan pertaniannya"
+                ],
+                answer: 0,
+                explanation: "Secara teori, petani hanya diwajibkan menyisihkan 1/5 (seperlima) dari tanahnya. Namun dalam praktiknya, seringkali lebih dari itu yang dirampas."
+            },
+            {
+                text: "Undang-undang yang disahkan pada tahun 1870 dan menjadi penanda dimulainya era Politik Pintu Terbuka (Liberalisme) adalah...",
+                options: [
+                    "A. Undang-Undang Agraria Tahun 1870 (Agrarische Wet)", 
+                    "B. Undang-Undang Gula Tahun 1870 (Suiker Wet)", 
+                    "C. Undang-Undang Keuangan Tahun 1864 (Comptabiliteit)", 
+                    "D. Undang-Undang Desentralisasi Tahun 1903 (Decentralisatie)", 
+                    "E. Undang-Undang Tanam Paksa Tahun 1830 (Cultuurstelsel)"
+                ],
+                answer: 0,
+                explanation: "UU Agraria 1870 adalah landasan Politik Pintu Terbuka yang mengizinkan pemodal swasta asing menyewa tanah dan membuka perkebunan di Hindia Belanda."
+            },
+            {
+                text: "Tiga program utama yang digagas dalam Trilogi Politik Etis (Politik Balas Budi) untuk masyarakat pribumi meliputi...",
+                options: [
+                    "A. Program Edukasi, Irigasi, dan Transmigrasi (Emigrasi)", 
+                    "B. Program Edukasi, Vaksinasi, dan Urbanisasi (Migrasi)", 
+                    "C. Program Irigasi, Transportasi, dan Sanitasi (Kesehatan)", 
+                    "D. Program Transmigrasi, Eksploitasi, dan Irigasi (Pengairan)", 
+                    "E. Program Edukasi, Administrasi, dan Vaksinasi (Kesehatan)"
+                ],
+                answer: 0,
+                explanation: "Trilogi Politik Etis gagasan van Deventer terdiri dari Irigasi (pengairan), Edukasi (pendidikan), dan Transmigrasi (perpindahan penduduk)."
+            },
+            {
+                text: "Buku terkenal berjudul 'Max Havelaar' yang berisi kritik tajam terhadap kekejaman Sistem Tanam Paksa ditulis menggunakan nama samaran...",
+                options: [
+                    "A. Multatuli (Nama asli: Eduard Douwes Dekker)", 
+                    "B. W.R. van Hoëvell (Nama asli: Pendeta Belanda)", 
+                    "C. C.T. van Deventer (Nama asli: Ahli Hukum Belanda)", 
+                    "D. Fransen van de Putte (Nama asli: Tokoh Liberal)", 
+                    "E. J. van den Bosch (Nama asli: Gubernur Jenderal)"
+                ],
+                answer: 0,
+                explanation: "Eduard Douwes Dekker menggunakan nama samaran 'Multatuli' (artinya: 'Aku yang banyak menderita') saat menulis Max Havelaar pada tahun 1860."
+            },
+            {
+                text: "Beberapa komoditas utama yang wajib ditanam oleh rakyat pribumi dalam Sistem Tanam Paksa untuk diekspor ke Eropa adalah...",
+                options: [
+                    "A. Tanaman kopi, tebu, dan tanaman nila putih", 
+                    "B. Tanaman padi, jagung, dan tanaman palawija", 
+                    "C. Tanaman rempah-rempah dari daerah Maluku", 
+                    "D. Tanaman kelapa sawit, karet, dan cengkih", 
+                    "E. Tanaman tembakau, cokelat, dan buah-buahan"
+                ],
+                answer: 0,
+                explanation: "Kopi, tebu, dan nila adalah komoditas laku keras di pasar Eropa sehingga sangat diwajibkan oleh Belanda untuk ditanam di tanah Jawa."
+            },
+            {
+                text: "Tokoh yang dianggap sebagai pelopor gagasan Politik Etis melalui artikelnya yang berjudul 'Een Eereschuld' (Suatu Hutang Kehormatan) adalah...",
+                options: [
+                    "A. Mr. Conrad Theodore van Deventer", 
+                    "B. Mr. Eduard Douwes Dekker (Multatuli)", 
+                    "C. Baron van Hoëvell (Politisi Belanda)", 
+                    "D. Gubernur Jenderal A.W.F. Idenburg", 
+                    "E. Gubernur Jenderal Johannes van den Bosch"
+                ],
+                answer: 0,
+                explanation: "Pada 1899, C.T. van Deventer menulis artikel 'Een Eereschuld' yang menyatakan bahwa Belanda berhutang budi pada kekayaan yang telah disedot dari Indonesia."
+            }
+        ],
+        2: [ // Level 2: MOTS (Pemahaman & Penerapan) - 7 Soal
+            {
+                text: "Salah satu dampak positif yang secara tidak langsung dirasakan oleh petani pribumi akibat pelaksanaan Sistem Tanam Paksa adalah...",
+                options: [
+                    "A. Petani pribumi mulai mengenal jenis tanaman ekspor internasional", 
+                    "B. Kas negeri Belanda mengalami kebangkrutan dan krisis ekonomi", 
+                    "C. Terjadinya wabah kelaparan besar di berbagai wilayah Pulau Jawa", 
+                    "D. Rakyat Indonesia dibebaskan dari segala jenis pajak penyewaan", 
+                    "E. Hilangnya kekuasaan para bupati di dalam birokrasi pemerintahan"
+                ],
+                answer: 0,
+                explanation: "Meskipun sangat menyengsarakan, Tanam Paksa secara tidak sengaja membuat rakyat mengenal sistem pertanian komoditas ekspor seperti teh, kopi, dan tebu."
+            },
+            {
+                text: "Perbedaan mendasar antara Sistem Tanam Paksa dan sistem Politik Pintu Terbuka di Hindia Belanda terletak pada aspek...",
+                options: [
+                    "A. Eksploitasi yang dikendalikan negara bergeser menjadi peran pihak swasta", 
+                    "B. Eksploitasi oleh pihak swasta bergeser menjadi milik mutlak negara Belanda", 
+                    "C. Petani pribumi mendapatkan keuntungan yang sangat besar di kedua sistem", 
+                    "D. Pemerintah Belanda sama sekali tidak lagi menarik pajak dari rakyat kecil", 
+                    "E. Para pengusaha lokal diizinkan mendominasi perekonomian di Nusantara"
+                ],
+                answer: 0,
+                explanation: "Tanam Paksa adalah monopoli ekonomi oleh pemerintah kolonial, sedangkan Pintu Terbuka memberi jalan bagi pengusaha/pemodal swasta untuk berinvestasi."
+            },
+            {
+                text: "Dalam pelaksanaan Politik Etis, pemerintah kolonial sangat fokus pada program Edukasi. Tujuan utama Belanda melakukan hal tersebut adalah...",
+                options: [
+                    "A. Menyediakan tenaga kerja terdidik untuk administrasi dengan upah murah", 
+                    "B. Mencerdaskan seluruh lapisan rakyat jelata di penjuru Hindia Belanda", 
+                    "C. Menyiapkan bangsa Indonesia untuk segera mendapatkan kemerdekaan", 
+                    "D. Memberikan beasiswa penuh bagi pemuda pribumi ke kampus Belanda", 
+                    "E. Menyamakan status sosial kaum pribumi agar setara dengan orang Eropa"
+                ],
+                answer: 0,
+                explanation: "Pendidikan (edukasi) awalnya tidak bertujuan untuk mencerdaskan bangsa murni, melainkan untuk mencetak pegawai administrasi rendahan bergaji murah untuk pemerintah/swasta."
+            },
+            {
+                text: "Pelaksanaan Undang-Undang Agraria tahun 1870 memiliki salah satu tujuan yang tampaknya 'melindungi' kaum pribumi, yaitu dengan cara...",
+                options: [
+                    "A. Melindungi tanah milik warga pribumi agar tidak bisa dibeli oleh pihak asing", 
+                    "B. Menyita seluruh tanah warga pribumi untuk diserahkan kembali ke kerajaan", 
+                    "C. Membagikan tanah perkebunan besar secara merata kepada para petani kecil", 
+                    "D. Mewajibkan warga pribumi menjual tanah mereka kepada pihak pengusaha swasta", 
+                    "E. Menjadikan semua tanah kosong tak bertuan sebagai hak milik mutlak pribumi"
+                ],
+                answer: 0,
+                explanation: "UU Agraria 1870 menyatakan tanah pribumi tidak boleh dijual kepada orang asing/Eropa. Orang asing hanya diizinkan untuk menyewa tanah tersebut dalam jangka waktu tertentu (Hak Erfpacht)."
+            },
+            {
+                text: "Program Transmigrasi (Emigrasi) dalam Politik Etis seringkali mengalami penyimpangan dalam pelaksanaannya. Bentuk penyimpangan tersebut adalah...",
+                options: [
+                    "A. Pemindahan penduduk digunakan semata untuk memenuhi kuli di perkebunan luar Jawa", 
+                    "B. Program ini hanya difokuskan untuk pemerataan populasi di daerah padat Jawa", 
+                    "C. Pemerintah Belanda hanya memindahkan warga Belanda ke wilayah timur Nusantara", 
+                    "D. Pemindahan penduduk dilakukan tanpa pernah memberikan lahan garapan sedikitpun", 
+                    "E. Program ini semata difokuskan untuk membangun tata kota yang modern di Sumatra"
+                ],
+                answer: 0,
+                explanation: "Transmigrasi yang awalnya bertujuan meratakan penduduk, diselewengkan untuk menyuplai kuli kontrak (pekerja murah) di perkebunan-perkebunan milik swasta di Sumatra."
+            },
+            {
+                text: "Sistem pajak tanah atau 'Landrente' peninggalan Raffles nyatanya tetap berlanjut di era Tanam Paksa. Akibat langsung dari kondisi ini bagi rakyat adalah...",
+                options: [
+                    "A. Petani pribumi semakin menderita akibat beban pajak ganda dari pemerintah", 
+                    "B. Petani pribumi otomatis dibebaskan dari pajak jika ikut program menanam", 
+                    "C. Pajak tanah perlahan dihapuskan sepenuhnya oleh pihak pemerintah Belanda", 
+                    "D. Petani pribumi menjadi kaya raya karena hasil panen dibeli dengan sangat mahal", 
+                    "E. Pajak tanah pada era tersebut hanya dibebankan kepada para pengusaha asing"
+                ],
+                answer: 0,
+                explanation: "Dalam Tanam Paksa, rakyat dipaksa menanam komoditas ekspor. Ironisnya, tanah yang digunakan menanam itu tetap dikenakan pajak (landrente), sehingga menjadi beban ganda."
+            },
+            {
+                text: "Mengapa golongan politisi beraliran liberal di negeri Belanda sangat menentang pelaksanaan Sistem Tanam Paksa di Nusantara?",
+                options: [
+                    "A. Tanam paksa dianggap melanggar prinsip perdagangan bebas dan hak asasi manusia", 
+                    "B. Tanam paksa dianggap menurunkan pendapatan total dari sektor pajak bumi bangunan", 
+                    "C. Tanam paksa menyebabkan para elit dan bupati lokal kehilangan kekuasaan politiknya", 
+                    "D. Tanam paksa mengurangi jumlah pekerja kasar yang bisa dikirim ke pabrik di Belanda", 
+                    "E. Tanam paksa dinilai telah membuat rakyat pribumi menjadi manusia yang berpendidikan"
+                ],
+                answer: 0,
+                explanation: "Golongan liberal meyakini sistem monopoli dan kerja paksa (Cultuurstelsel) menentang kebebasan ekonomi, persaingan bebas, serta melanggar hak asasi manusia (kemanusiaan)."
+            }
+        ],
+        3: [ // Level 3: HOTS (Analisis & Evaluasi) - 6 Soal
+            {
+                text: "Meskipun penuh penyimpangan, Politik Etis memberikan satu dampak luar biasa yang berujung pada keruntuhan kolonialisme itu sendiri. Analisis dampak tersebut adalah...",
+                options: [
+                    "A. Lahirnya golongan elite terpelajar pribumi yang akhirnya memelopori pergerakan nasional", 
+                    "B. Terhentinya secara total praktik eksploitasi ekonomi swasta di seluruh Hindia Belanda", 
+                    "C. Berhasil terhapusnya secara permanen kesenjangan sosial antara kaum pribumi dan Eropa", 
+                    "D. Menjadikan wilayah Indonesia sebagai negara dengan kekuatan militer yang sangat maju", 
+                    "E. Memaksa pemerintah Kerajaan Belanda memberikan kemerdekaan secara cuma-cuma"
+                ],
+                answer: 0,
+                explanation: "Pendidikan (Edukasi) melahirkan kaum intelektual seperti Soetomo, HOS Tjokroaminoto, dan Soekarno yang kemudian memiliki kesadaran nasional untuk merdeka."
+            },
+            {
+                text: "Terdapat hubungan erat antara Revolusi Industri di Eropa dengan transisi menuju Politik Pintu Terbuka di Indonesia. Korelasi yang paling tepat dari kondisi ini adalah...",
+                options: [
+                    "A. Industri Belanda yang makin maju sangat membutuhkan ketersediaan bahan baku dan pasar baru", 
+                    "B. Pemerintah Belanda berencana memindahkan seluruh pusat pabriknya dari Eropa ke Nusantara", 
+                    "C. Rakyat di negara Indonesia dituntut oleh Belanda untuk bisa membuat mesin-mesin industri", 
+                    "D. Kerajaan Belanda saat itu sedang kekurangan drastis tenaga kerja pabrik di benua Eropa", 
+                    "E. Pasar Eropa secara serempak memboikot dan melarang masuknya hasil bumi dari Indonesia"
+                ],
+                answer: 0,
+                explanation: "Revolusi Industri memicu kapitalisme. Belanda butuh bahan baku mentah (karet, kelapa sawit) untuk pabriknya dan butuh wilayah jajahan sebagai pasar untuk menjual produk industrinya."
+            },
+            {
+                text: "Ironi atau kegagalan terbesar dari niat mulia kebijakan Politik Etis (Balas Budi) jika dievaluasi dari kacamata kesejahteraan sosial adalah...",
+                options: [
+                    "A. Kebijakan ini pada praktiknya tetap diselewengkan untuk kepentingan ekonomi kaum penjajah", 
+                    "B. Seluruh kas anggaran pemerintah Belanda akhirnya habis terserap untuk mendidik rakyat lokal", 
+                    "C. Penduduk pribumi Nusantara secara tegas menolak adanya program pembangunan irigasi air", 
+                    "D. Pemerintah Kerajaan Belanda pada akhirnya memberikan hak otonomi daerah terlalu luas", 
+                    "E. Pihak-pihak swasta asing justru diusir secara sepihak dan paksa dari bumi Hindia Belanda"
+                ],
+                answer: 0,
+                explanation: "Trilogi Politik Etis tampak mulia, tapi Irigasi mengalir ke kebun swasta, Edukasi melahirkan pegawai murah, dan Transmigrasi mencari kuli murah. Esensinya tetap menguntungkan Belanda."
+            },
+            {
+                text: "Jika membandingkan dampak Tanam Paksa dengan Politik Pintu Terbuka bagi kehidupan ekonomi petani gurem (rakyat kecil), kesimpulan analitis yang tepat adalah...",
+                options: [
+                    "A. Keduanya sama-sama memiskinkan dan mengeksploitasi tenaga serta lahan milik kaum pribumi", 
+                    "B. Tanam paksa terasa jauh lebih ringan karena prosesnya diawasi ketat oleh para bupati lokal", 
+                    "C. Pintu Terbuka seketika membuat petani lokal beralih profesi menjadi kaum pengusaha sukses", 
+                    "D. Tanam Paksa sangat menyejahterakan petani, sedangkan Pintu Terbuka justru menyengsarakan", 
+                    "E. Keduanya selalu memberikan margin keuntungan finansial yang merata bagi setiap petani lokal"
+                ],
+                answer: 0,
+                explanation: "Pergantian sistem dari Tanam Paksa ke Pintu Terbuka nyatanya hanya pergantian 'majikan' dari pemerintah ke pihak swasta kapitalis. Keduanya tetap memeras keringat rakyat kecil."
+            },
+            {
+                text: "Tulisan Multatuli (Max Havelaar) tidak hanya mengkritik Belanda, tapi juga elite pribumi. Kritik utama Multatuli terhadap para Bupati lokal Jawa adalah...",
+                options: [
+                    "A. Bupati lokal dinilai sering memeras rakyatnya sendiri demi mengejar target setoran ke Belanda", 
+                    "B. Bupati lokal dianggap selalu melindungi para petani kecil dari ancaman hukuman pihak Eropa", 
+                    "C. Bupati lokal dinilai terlalu berani menentang berbagai kebijakan ekonomi Gubernur Jenderal", 
+                    "D. Bupati lokal dituduh sebagai pihak yang secara diam-diam ingin menghancurkan Ratu Belanda", 
+                    "E. Bupati lokal dianggap terlalu sering membagikan harta pribadinya kepada rakyat yang kelaparan"
+                ],
+                answer: 0,
+                explanation: "Sistem 'Cultuurprocenten' (bonus panen) membuat para Bupati, wedana, dan kepala desa memaksa rakyat bekerja lebih keras demi mendapatkan komisi yang lebih besar dari Belanda."
+            },
+            {
+                text: "Mengapa kebijakan Irigasi (Pengairan) dalam Trilogi Politik Etis sering kali dinilai 'salah sasaran' secara historis?",
+                options: [
+                    "A. Saluran air yang dibangun jauh lebih banyak dialirkan menuju kawasan perkebunan milik swasta", 
+                    "B. Petani pribumi di daerah terpencil sama sekali tidak memahami tata cara menggunakan air irigasi", 
+                    "C. Fasilitas saluran irigasi selalu dihancurkan dengan sengaja oleh para kelompok pejuang lokal", 
+                    "D. Mega proyek pembangunan sarana irigasi tersebut menghabiskan banyak lahan pertanian padi", 
+                    "E. Aliran air irigasi tersebut murni hanya dikhususkan untuk menyirami tanaman hias istana gubernur"
+                ],
+                answer: 0,
+                explanation: "Pembangunan irigasi tidak diarahkan ke sawah-sawah milik rakyat yang sedang kekeringan, melainkan difokuskan untuk mengairi perkebunan tebu dan tembakau milik swasta Eropa."
+            }
+        ]
+    };
+
+    class QuizApp {
+        constructor() {
+            this.db = null;
+            this.auth = null;
+            this.userId = null;
+            this.appId = typeof __app_id !== 'undefined' ? __app_id : 'history-quiz-123';
+            
+            this.studentData = { name: '', class: '' };
+            this.state = {
+                currentQuestionNum: 1,
+                maxQuestions: 20, // Kuis berjalan selama 20 soal
+                currentLevel: 1, // Mulai dari LOTS
+                score: 0,
+                correctAnswers: 0,
+                isAudioEnabled: true,
+                usedQuestions: { 1:[], 2:[], 3:[] },
+                currentQuestionObj: null
+            };
+
+            this.audioCtx = null;
+            this.unsubscribeDashboard = null;
+            this.studentsDataList = [];
+
+            this.init();
+        }
+
+        async init() {
+            this.setupUIBindings();
+            await this.initFirebase();
+        }
+
+        async initFirebase() {
+            try {
+                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+                    // Fallback mock config to prevent errors if not provided in environment
+                    apiKey: "mock-key", projectId: "mock-project" 
+                };
+                
+                const app = initializeApp(firebaseConfig);
+                this.db = getFirestore(app);
+                this.auth = getAuth(app);
+
+                const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                
+                if (token) {
+                    await signInWithCustomToken(this.auth, token);
+                } else {
+                    await signInAnonymously(this.auth);
+                }
+                
+                this.userId = this.auth.currentUser.uid;
+                console.log("Firebase initialized. User:", this.userId);
+            } catch (error) {
+                console.error("Firebase init error:", error);
+            }
+        }
+
+        showAlert(title, message, isError = false) {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMessage').innerText = message;
+            document.getElementById('alertIcon').innerText = isError ? '❌' : '⚠️';
+            document.getElementById('customAlert').classList.remove('hidden');
+        }
+
+        setupUIBindings() {
+            document.getElementById('audioToggleBtn').addEventListener('click', () => this.toggleAudio());
+        }
+
+        showScreen(screenId) {
+            const screens = ['screen-role', 'screen-student-login', 'screen-quiz', 'screen-result', 'screen-teacher-login', 'screen-dashboard'];
+            screens.forEach(s => {
+                const el = document.getElementById(s);
+                if (el) {
+                    el.classList.add('hidden');
+                    el.classList.remove('flex');
+                }
+            });
+            
+            const activeScreen = document.getElementById(screenId);
+            if (activeScreen) {
+                activeScreen.classList.remove('hidden');
+                activeScreen.classList.add('flex');
+            }
+
+            // Stop TTS when changing screens
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            
+            if (screenId === 'screen-dashboard') {
+                this.loadDashboardData();
+            } else {
+                if (this.unsubscribeDashboard) {
+                    this.unsubscribeDashboard();
+                    this.unsubscribeDashboard = null;
+                }
+            }
+        }
+
+        // --- Audio Management ---
+        initAudioContext() {
+            if (this.state.isAudioEnabled && !this.audioCtx) {
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.audioCtx = new AudioContext();
+                } catch(e) {
+                    console.log("AudioContext not supported");
+                }
+            }
+        }
+
+        toggleAudio() {
+            this.state.isAudioEnabled = !this.state.isAudioEnabled;
+            const btn = document.getElementById('audioToggleBtn');
+            const icon = document.getElementById('audioIcon');
+            const text = document.getElementById('audioText');
+            
+            if (this.state.isAudioEnabled) {
+                icon.innerText = '🔊';
+                text.innerText = 'Audio ON';
+                btn.classList.replace('text-slate-400', 'text-slate-700');
+                if ('speechSynthesis' in window) window.speechSynthesis.resume();
+            } else {
+                icon.innerText = '🔇';
+                text.innerText = 'Audio OFF';
+                btn.classList.replace('text-slate-700', 'text-slate-400');
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            }
+        }
+
+        playTone(type) {
+            this.initAudioContext();
+            if (!this.state.isAudioEnabled || !this.audioCtx) return;
+
+            const osc = this.audioCtx.createOscillator();
+            const gainNode = this.audioCtx.createGain();
+            
+            osc.connect(gainNode);
+            gainNode.connect(this.audioCtx.destination);
+            
+            const now = this.audioCtx.currentTime;
+            
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now); // A4
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.1); // A5
+                gainNode.gain.setValueAtTime(0.5, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+                gainNode.gain.setValueAtTime(0.5, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                gainNode.gain.setValueAtTime(0.2, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            }
+        }
+
+        readText(text) {
+            if (!this.state.isAudioEnabled || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel(); // Stop current speech
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID'; // Indonesian
+            utterance.rate = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        readQuestionAndOptions() {
+            if (!this.state.currentQuestionObj) return;
+            let textToRead = "Pertanyaan: " + this.state.currentQuestionObj.text + ". Pilihan jawaban: ";
+            this.state.currentQuestionObj.options.forEach(opt => {
+                textToRead += opt + ". ";
+            });
+            this.readText(textToRead);
+        }
+
+        // --- Quiz Flow ---
+        startQuiz() {
+            this.playTone('click');
+            const name = document.getElementById('studentName').value.trim();
+            const cls = document.getElementById('studentClass').value;
+            
+            if (!name || !cls) {
+                this.showAlert('Data Tidak Lengkap', 'Tolong isi namamu dan pilih kelas sebelum mulai kuis ya!');
+                return;
+            }
+
+            this.studentData.name = name;
+            this.studentData.class = cls;
+            
+            // Reset State
+            this.state = {
+                currentQuestionNum: 1,
+                maxQuestions: 20, // Menghabiskan semua 20 soal yang tersedia
+                currentLevel: 1,
+                score: 0,
+                correctAnswers: 0,
+                isAudioEnabled: this.state.isAudioEnabled,
+                usedQuestions: { 1:[], 2:[], 3:[] },
+                currentQuestionObj: null
+            };
+
+            this.showScreen('screen-quiz');
+            this.loadQuestion();
+        }
+
+        getDifficultyName(level) {
+            return level === 1 ? 'LOTS' : (level === 2 ? 'MOTS' : 'HOTS');
+        }
+
+        getDifficultyColor(level) {
+            return level === 1 ? 'bg-indigo-200 text-indigo-800' : 
+                   (level === 2 ? 'bg-amber-200 text-amber-800' : 'bg-rose-200 text-rose-800');
+        }
+
+        loadQuestion() {
+            // Adaptive Logic: Select question from current level pool that hasn't been used
+            let availableQuestions = questionBank[this.state.currentLevel].filter(
+                (q, idx) => !this.state.usedQuestions[this.state.currentLevel].includes(idx)
+            );
+
+            // Fallback aman jika soal di level tertentu sudah habis
+            if (availableQuestions.length === 0) {
+                // Cari di semua level dari 1 sampai 3
+                let foundLevel = -1;
+                for (let lvl = 1; lvl <= 3; lvl++) {
+                    availableQuestions = questionBank[lvl].filter(
+                        (q, idx) => !this.state.usedQuestions[lvl].includes(idx)
+                    );
+                    if (availableQuestions.length > 0) {
+                        foundLevel = lvl;
+                        break;
+                    }
+                }
+                
+                // Jika semua level benar-benar habis, sudahi kuis lebih awal
+                if (foundLevel === -1) {
+                    this.finishQuiz();
+                    return;
+                }
+                this.state.currentLevel = foundLevel;
+            }
+
+            // Pick random question from available
+            const originalIndex = questionBank[this.state.currentLevel].indexOf(availableQuestions[Math.floor(Math.random() * availableQuestions.length)]);
+            this.state.usedQuestions[this.state.currentLevel].push(originalIndex);
+            
+            const q = questionBank[this.state.currentLevel][originalIndex];
+            this.state.currentQuestionObj = q;
+
+            // Update UI
+            document.getElementById('qNumber').innerText = this.state.currentQuestionNum;
+            document.getElementById('qScore').innerText = this.state.score;
+            
+            const badge = document.getElementById('qLevelBadge');
+            badge.innerText = this.getDifficultyName(this.state.currentLevel);
+            badge.className = `px-3 py-1 rounded-lg text-sm font-bold ${this.getDifficultyColor(this.state.currentLevel)}`;
+            
+            document.getElementById('questionText').innerText = q.text;
+
+            const optsContainer = document.getElementById('optionsContainer');
+            optsContainer.innerHTML = '';
+            
+            q.options.forEach((optText, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-option w-full text-left bg-white border-2 border-slate-200 hover:border-sky-400 p-4 rounded-xl shadow-sm text-lg font-medium text-slate-700 flex items-center gap-3 transition-colors';
+                btn.innerHTML = `<span class="bg-slate-100 text-slate-500 w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0">${String.fromCharCode(65 + index)}</span> <span>${optText.substring(3)}</span>`;
+                btn.onclick = () => this.handleAnswer(index);
+                optsContainer.appendChild(btn);
+            });
+
+            // Auto-read question if enabled
+            setTimeout(() => this.readQuestionAndOptions(), 500);
+        }
+
+        handleAnswer(selectedIndex) {
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            
+            const q = this.state.currentQuestionObj;
+            const isCorrect = (selectedIndex === q.answer);
+            
+            const modal = document.getElementById('modal-feedback');
+            const icon = document.getElementById('feedbackIcon');
+            const title = document.getElementById('feedbackTitle');
+            const text = document.getElementById('feedbackText');
+            const explanation = document.getElementById('feedbackExplanation');
+
+            if (isCorrect) {
+                this.playTone('correct');
+                // Calculate points based on level
+                const points = this.state.currentLevel * 20; 
+                this.state.score += points;
+                this.state.correctAnswers++;
+                
+                icon.innerText = '🌟';
+                title.innerText = 'Tepat Sekali!';
+                title.className = 'text-3xl font-bold mb-2 text-emerald-600';
+                text.innerHTML = `Hebat! Jawabanmu benar. Kamu mendapat <span class="font-bold text-emerald-600">+${points} poin</span>.`;
+                
+                // Adaptive: Go Up Level
+                this.state.currentLevel = Math.min(3, this.state.currentLevel + 1);
+            } else {
+                this.playTone('wrong');
+                
+                icon.innerText = '💡';
+                title.innerText = 'Kurang Tepat';
+                title.className = 'text-3xl font-bold mb-2 text-amber-600';
+                
+                const correctOptStr = q.options[q.answer];
+                text.innerHTML = `Jawaban yang benar adalah: <span class="font-bold text-slate-800">${correctOptStr}</span>`;
+                
+                // Adaptive: Go Down Level
+                this.state.currentLevel = Math.max(1, this.state.currentLevel - 1);
+            }
+
+            explanation.innerText = q.explanation;
+            modal.classList.remove('hidden');
+
+            // Read feedback
+            this.readText(`${isCorrect ? 'Benar!' : 'Kurang tepat.'} ${q.explanation}`);
+        }
+
+        nextQuestion() {
+            this.playTone('click');
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            document.getElementById('modal-feedback').classList.add('hidden');
+
+            if (this.state.currentQuestionNum >= this.state.maxQuestions) {
+                this.finishQuiz();
+            } else {
+                this.state.currentQuestionNum++;
+                this.loadQuestion();
+            }
+        }
+
+        async finishQuiz() {
+            document.getElementById('finalName').innerText = this.studentData.name;
+            document.getElementById('finalClass').innerText = this.studentData.class;
+            document.getElementById('finalScoreDisplay').innerText = this.state.score;
+            document.getElementById('finalCorrectDisplay').innerText = this.state.correctAnswers;
+            
+            let message = "";
+            if (this.state.score >= 200) message = "Luar biasa! Pemahaman metodologi sejarahmu setingkat sejarawan profesional!";
+            else if (this.state.score >= 100) message = "Bagus! Kamu sudah memahami konsep dasar penelitian sejarah dengan baik.";
+            else message = "Jangan menyerah! Teruslah membaca dan tingkatkan pemahaman sejarahmu.";
+            
+            document.getElementById('finalMessage').innerText = message;
+            
+            this.showScreen('screen-result');
+            this.readText(`Kuis selesai! Skor akhir kamu adalah ${this.state.score}. ${message}`);
+
+            // Save to Firestore
+            await this.saveResultToDatabase();
+        }
+
+        downloadMyResultPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Styling and Content for Certificate
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(22);
+                doc.setTextColor(2, 132, 199); // Sky-600 color
+                doc.text("Sertifikat Hasil Kuis Sejarah", 105, 30, { align: "center" });
+                
+                doc.setFontSize(16);
+                doc.setTextColor(30, 41, 59); // Slate-800 color
+                doc.text("HistoriQu - Metode Penelitian Sejarah", 105, 40, { align: "center" });
+                
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(14);
+                doc.text(`Diberikan kepada:`, 105, 60, { align: "center" });
+                
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(20);
+                doc.setTextColor(15, 23, 42); 
+                doc.text(this.studentData.name, 105, 70, { align: "center" });
+                
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(14);
+                doc.text(`Kelas: ${this.studentData.class}`, 105, 80, { align: "center" });
+                
+                doc.text("Telah menyelesaikan kuis dengan skor akhir:", 105, 105, { align: "center" });
+                
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(40);
+                doc.setTextColor(234, 88, 12); // Orange-600
+                doc.text(`${this.state.score}`, 105, 125, { align: "center" });
+                
+                doc.setFontSize(14);
+                doc.setTextColor(30, 41, 59);
+                doc.text(`Total Jawaban Benar: ${this.state.correctAnswers} dari ${this.state.maxQuestions} Soal`, 105, 140, { align: "center" });
+                doc.text(`Tingkat Kesulitan Terakhir: ${this.getDifficultyName(this.state.currentLevel)}`, 105, 150, { align: "center" });
+                
+                const date = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                doc.setFont("helvetica", "italic");
+                doc.setFontSize(12);
+                doc.text(`Tanggal: ${date}`, 105, 170, { align: "center" });
+
+                // Download the file
+                doc.save(`Hasil_Kuis_${this.studentData.name.replace(/\s+/g, '_')}.pdf`);
+            } catch (e) {
+                console.error(e);
+                this.showAlert('Error', 'Gagal membuat file PDF. Pastikan koneksi internet stabil.');
+            }
+        }
+
+        async saveResultToDatabase() {
+            if (!this.auth || !this.auth.currentUser) return;
+            
+            try {
+                // Rule 1: Strict Paths for public data
+                const colRef = collection(this.db, 'artifacts', this.appId, 'public', 'data', 'history_quiz_results');
+                await addDoc(colRef, {
+                    name: this.studentData.name,
+                    className: this.studentData.class,
+                    score: this.state.score,
+                    finalLevel: this.getDifficultyName(this.state.currentLevel),
+                    timestamp: serverTimestamp()
+                });
+                console.log("Result saved successfully");
+            } catch (error) {
+                console.error("Error saving result:", error);
+                this.showAlert('Koneksi Gagal', 'Gagal menyimpan nilai ke database. Pastikan koneksi internet stabil.');
+            }
+        }
+
+        // --- Teacher Dashboard ---
+        loginTeacher() {
+            const pin = document.getElementById('teacherPin').value;
+            if (pin === '1234') { // Simple mockup PIN
+                document.getElementById('teacherPin').value = '';
+                document.getElementById('pinError').classList.add('hidden');
+                this.showScreen('screen-dashboard');
+            } else {
+                document.getElementById('pinError').classList.remove('hidden');
+            }
+        }
+
+        loadDashboardData() {
+            if (!this.auth || !this.auth.currentUser) return;
+
+            const colRef = collection(this.db, 'artifacts', this.appId, 'public', 'data', 'history_quiz_results');
+            
+            // Rule 2: No Complex Queries. Fetch all, sort in memory.
+            this.unsubscribeDashboard = onSnapshot(colRef, (snapshot) => {
+                const results = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    results.push({
+                        id: doc.id,
+                        name: data.name,
+                        class: data.className,
+                        score: data.score,
+                        level: data.finalLevel,
+                        // handle timestamp nicely (serverTimestamp might be null locally first)
+                        time: data.timestamp ? data.timestamp.toDate() : new Date() 
+                    });
+                });
+
+                // Sort by time descending (newest first)
+                results.sort((a, b) => b.time - a.time);
+                this.studentsDataList = results;
+                this.renderTable(results);
+                
+            }, (error) => {
+                console.error("Dashboard Snapshot Error:", error);
+                document.getElementById('tableBody').innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500 font-medium">Gagal memuat data. Periksa koneksi internet.</td></tr>`;
+            });
+        }
+
+        renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 font-medium">Belum ada data murid yang masuk.</td></tr>`;
+                return;
+            }
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0';
+                
+                const timeStr = row.time.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' - ' + row.time.toLocaleDateString('id-ID');
+                
+                tr.innerHTML = `
+                    <td class="p-4 text-slate-500 text-sm">${timeStr}</td>
+                    <td class="p-4 font-semibold text-slate-800">${row.name}</td>
+                    <td class="p-4 text-slate-600">${row.class}</td>
+                    <td class="p-4 text-center">
+                        <span class="bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full text-sm">${row.score}</span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <span class="bg-indigo-100 text-indigo-800 font-bold px-3 py-1 rounded-full text-sm">${row.level}</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- EXPORT FUNCTIONS ---
+        getCleanDataForExport() {
+            return this.studentsDataList.map((d, index) => ({
+                "No": index + 1,
+                "Waktu": d.time.toLocaleString('id-ID'),
+                "Nama Siswa": d.name,
+                "Kelas": d.class,
+                "Skor Akhir": d.score,
+                "Level Terakhir": d.level
+            }));
+        }
+
+        exportToExcel() {
+            if (this.studentsDataList.length === 0) return this.showAlert('Data Kosong', 'Belum ada data untuk diekspor.');
+            try {
+                const data = this.getCleanDataForExport();
+                const ws = XLSX.utils.json_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Rekap Nilai");
+                XLSX.writeFile(wb, "Rekap_Nilai_Sejarah.xlsx");
+            } catch (e) {
+                console.error(e);
+                this.showAlert('Error', 'Gagal membuat file Excel.');
+            }
+        }
+
+        exportToPDF() {
+            if (this.studentsDataList.length === 0) return this.showAlert('Data Kosong', 'Belum ada data untuk diekspor.');
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.text("Laporan Nilai Kuis Sejarah", 14, 15);
+                doc.setFontSize(10);
+                doc.text("Materi: Metode Penelitian Sejarah", 14, 22);
+
+                const data = this.getCleanDataForExport();
+                const rows = data.map(d => [d.No, d.Waktu, d["Nama Siswa"], d.Kelas, d["Skor Akhir"], d["Level Terakhir"]]);
+                
+                doc.autoTable({
+                    head: [['No', 'Waktu', 'Nama Siswa', 'Kelas', 'Skor', 'Level']],
+                    body: rows,
+                    startY: 30,
+                    theme: 'grid',
+                    headStyles: { fillColor: [4, 120, 87] } // emerald-700
+                });
+
+                doc.save("Rekap_Nilai_Sejarah.pdf");
+            } catch (e) {
+                console.error(e);
+                this.showAlert('Error', 'Gagal membuat file PDF.');
+            }
+        }
+
+        exportToWord() {
+            if (this.studentsDataList.length === 0) return this.showAlert('Data Kosong', 'Belum ada data untuk diekspor.');
+            try {
+                let tableHtml = `
+                    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                    <head><meta charset='utf-8'><title>Rekap Nilai</title></head>
+                    <body>
+                        <h2>Laporan Nilai Kuis Sejarah</h2>
+                        <p>Materi: Metode Penelitian Sejarah</p>
+                        <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+                            <tr style="background-color: #d1fae5;">
+                                <th>No</th>
+                                <th>Waktu</th>
+                                <th>Nama Siswa</th>
+                                <th>Kelas</th>
+                                <th>Skor Akhir</th>
+                                <th>Level Terakhir</th>
+                            </tr>
+                `;
+
+                const data = this.getCleanDataForExport();
+                data.forEach(d => {
+                    tableHtml += `
+                        <tr>
+                            <td>${d.No}</td>
+                            <td>${d.Waktu}</td>
+                            <td>${d["Nama Siswa"]}</td>
+                            <td>${d.Kelas}</td>
+                            <td align="center">${d["Skor Akhir"]}</td>
+                            <td align="center">${d["Level Terakhir"]}</td>
+                        </tr>
+                    `;
+                });
+
+                tableHtml += `</table></body></html>`;
+
+                const blob = new Blob(['\ufeff', tableHtml], {
+                    type: 'application/msword'
+                });
+                
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'Rekap_Nilai_Sejarah.doc';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                console.error(e);
+                this.showAlert('Error', 'Gagal membuat file Word.');
+            }
+        }
+    }
+
+    // Initialize App
+    window.app = new QuizApp();
+</script>
+</body>
+</html>
